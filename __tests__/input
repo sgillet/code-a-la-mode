@@ -1,0 +1,33 @@
+numAllCustomers 20
+customerItem, customerAward [ 'DISH-BLUEBERRIES-ICE_CREAM', '650' ]
+customerItem, customerAward [ 'DISH-BLUEBERRIES-ICE_CREAM', '650' ]
+customerItem, customerAward [ 'DISH-ICE_CREAM-BLUEBERRIES', '650' ]
+customerItem, customerAward [ 'DISH-ICE_CREAM-BLUEBERRIES', '650' ]
+customerItem, customerAward [ 'DISH-ICE_CREAM-BLUEBERRIES', '650' ]
+customerItem, customerAward [ 'DISH-ICE_CREAM-BLUEBERRIES', '650' ]
+customerItem, customerAward [ 'DISH-BLUEBERRIES-ICE_CREAM', '650' ]
+customerItem, customerAward [ 'DISH-BLUEBERRIES-ICE_CREAM', '650' ]
+customerItem, customerAward [ 'DISH-BLUEBERRIES-ICE_CREAM', '650' ]
+customerItem, customerAward [ 'DISH-BLUEBERRIES-ICE_CREAM', '650' ]
+customerItem, customerAward [ 'DISH-ICE_CREAM-BLUEBERRIES', '650' ]
+customerItem, customerAward [ 'DISH-BLUEBERRIES-ICE_CREAM', '650' ]
+customerItem, customerAward [ 'DISH-ICE_CREAM-BLUEBERRIES', '650' ]
+customerItem, customerAward [ 'DISH-ICE_CREAM-BLUEBERRIES', '650' ]
+customerItem, customerAward [ 'DISH-BLUEBERRIES-ICE_CREAM', '650' ]
+customerItem, customerAward [ 'DISH-ICE_CREAM-BLUEBERRIES', '650' ]
+customerItem, customerAward [ 'DISH-BLUEBERRIES-ICE_CREAM', '650' ]
+customerItem, customerAward [ 'DISH-ICE_CREAM-BLUEBERRIES', '650' ]
+customerItem, customerAward [ 'DISH-BLUEBERRIES-ICE_CREAM', '650' ]
+customerItem, customerAward [ 'DISH-BLUEBERRIES-ICE_CREAM', '650' ]
+kitchenLine #####D####I
+kitchenLine #.........#
+kitchenLine #.####.##.#
+kitchenLine #.#..#1.#.#
+kitchenLine #.B#0####.#
+kitchenLine #.........#
+kitchenLine #####W#####
+turnsRemaining 199
+playerX, playerY [ '5', '1', 'NONE' ]
+partnerX, partnerY [ '7', '3', 'NONE' ]
+numTablesWithItems 0
+numCustomers 3
