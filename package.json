@@ -12,7 +12,8 @@
   "license": "ISC",
   "bugs": {},
   "devDependencies": {
-    "jest": "^24.8.0"
+    "jest": "^24.8.0",
+    "sinon": "^7.3.2"
   },
   "jest": {
     "collectCoverage": true

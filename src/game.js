@@ -8,6 +8,7 @@ class Position {
     this.y = parseInt(y);
   }
 }
+
 class Element {
   searchPosition(lines) {
     let position;
@@ -40,7 +41,7 @@ class Chef extends Element {
 class Item extends Element {
   setPosition(x,y) {
     this.position.update(x, y);
-  };
+  }
 }
 
 class Blueberry extends Item {
@@ -111,16 +112,26 @@ class Orchestrator {
   }
 }
 
+class Customer {
+  constructor(wish, award) {
+    this.award = award;
+    this.wish = wish;
+  }
+}
 class Game {
   constructor(customersCount) {
-    this.customersCount = customersCount;
+    this.customersCount = parseInt(customersCount);
     this.kitchen = new Kitchen();
+    this.customers = [];
   }
   setTurnsRemaining(turnsRemaining) {
     this.turnsRemaining = turnsRemaining;
   }
   setElements() {
     this.kitchen.setElements();
+  }
+  addCustomer(wish, award) {
+    this.customers.push(new Customer(wish, award));
   }
   getNextMove() {
     return Orchestrator.getNextMove(this.kitchen);
