@@ -94,6 +94,23 @@ class Kitchen {
   }
 }
 
+class Orchestrator {
+  static getNextMove(kitchen) {
+    switch(kitchen.player.items) {
+      case 'NONE':
+        return `USE ${kitchen.dishwasher.position.x} ${kitchen.dishwasher.position.y}`;
+      case 'DISH':
+        return `USE ${kitchen.blueberry.position.x} ${kitchen.blueberry.position.y}`;
+      case 'DISH-BLUEBERRIES':
+        return `USE ${kitchen.iceCream.position.x} ${kitchen.iceCream.position.y}`;
+      case 'DISH-BLUEBERRIES-ICE_CREAM':
+        return `USE ${kitchen.window.position.x} ${kitchen.window.position.y}`;
+      default:
+        return 'WAIT';
+    }
+  }
+}
+
 class Game {
   constructor(customersCount) {
     this.customersCount = customersCount;
@@ -104,6 +121,12 @@ class Game {
   }
   setElements() {
     this.kitchen.setElements();
+  }
+  getNextMove() {
+    return Orchestrator.getNextMove(this.kitchen);
+  }
+  updatePlayerState(state) {
+    this.kitchen.player.updateState(state);
   }
 }
 

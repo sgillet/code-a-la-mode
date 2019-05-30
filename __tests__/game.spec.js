@@ -101,4 +101,33 @@ describe("Game", () => {
       expect(game.kitchen.partner.items).toBe('NONE');
     });
   });
+  describe('Orchestrator', () => {
+    it('should take the dishes (USE 5 0)', () => {
+      expect(game.getNextMove()).toBe('USE 5 0');
+    });
+    describe('when player holds a dish', () => {
+      beforeAll(() => {
+        game.updatePlayerState([ '6', '1', 'DISH' ]);
+      });
+      it('should take the blueberry (USE 2 4)', () => {
+        expect(game.getNextMove()).toBe('USE 2 4');
+      });
+    });
+    describe('when player holds a blueberry-dish', () => {
+      beforeAll(() => {
+        game.updatePlayerState([ '6', '1', 'DISH-BLUEBERRIES' ]);
+      });
+      it('should take the ice cream (USE 10 0)', () => {
+        expect(game.getNextMove()).toBe('USE 10 0');
+      });
+    });
+    describe('when player holds a blueberry-ice-dish', () => {
+      beforeAll(() => {
+        game.updatePlayerState([ '6', '1', 'DISH-BLUEBERRIES-ICE_CREAM' ]);
+      });
+      it('should send the plate through the window (USE 5 6)', () => {
+        expect(game.getNextMove()).toBe('USE 5 6');
+      });
+    });
+  })
 });
