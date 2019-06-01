@@ -14,9 +14,8 @@ class Native {
 
 class Main {
   static init() {
-    const customersCount = Native.readline();
-    const game = new Game(customersCount);
-    for (let i = 0; i < game.customersCount; i++) {
+    const game = new Game(parseInt(Native.readline()));
+    for (let i = 0; i < game.customers.count; i++) {
       var inputs = Native.readline().split(' ');
       game.addCustomer(inputs[0], parseInt(inputs[1]))
     }
@@ -27,18 +26,29 @@ class Main {
     while(Native.isNextTurn()) {
       game.setTurnsRemaining(parseInt(Native.readline()));
       game.updatePlayerState(Native.readline().split(' '));
-      Native.readline(); //partner
+      game.updatePartnerState(Native.readline().split(' '));
       const tablesWithItems = parseInt(Native.readline()); //num tables with items
       for(let i = 0; i < tablesWithItems; i++) {
         Native.readline(); //table with item
       }
       Native.readline(); //oven timer
-      const numCustomers = Native.readline(); // the number of customers currently waiting for food
-      for (let i = 0; i < parseInt(numCustomers); i++) {
-        Native.readline().split(' '); // customer waiting (item, award);
-      }
+      Main.setCustomersWaiting(game);
       Native.log(game.getNextMove());
     }
   }
+
+  static setCustomersWaiting(game) {
+    const numCustomers = Native.readline(); // the number of customers currently waiting for food
+    let customersWaiting = [];
+    for (let i = 0; i < parseInt(numCustomers); i++) {
+      const customerWaiting = Native.readline().split(' ');
+      customersWaiting.push({
+        wish: customerWaiting[0],
+        award: parseInt(customerWaiting[1]),
+      });
+    }
+    game.setCustomersWaiting(customersWaiting); // customer waiting (item, award);
+  }
 }
+
 module.exports = {Main, Native};
