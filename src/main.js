@@ -27,16 +27,26 @@ class Main {
       game.setTurnsRemaining(parseInt(Native.readline()));
       game.updatePlayerState(Native.readline().split(' '));
       game.updatePartnerState(Native.readline().split(' '));
-      const tablesWithItems = parseInt(Native.readline()); //num tables with items
-      for(let i = 0; i < tablesWithItems; i++) {
-        Native.readline(); //table with item
-      }
+      Main.setDishesDown(game);
       Native.readline(); //oven timer
       Main.setCustomersWaiting(game);
       Native.log(game.getNextMove());
     }
   }
 
+  static setDishesDown(game) {
+    const dishesDownCount = parseInt(Native.readline());
+    let dishesDown = [];
+    for(let i = 0; i < dishesDownCount; i++) {
+      const dishDown = Native.readline().split(' ');
+      dishesDown.push({
+        positionX: parseInt(dishDown[0]),
+        positionY: parseInt(dishDown[1]),
+        recipeName: dishDown[2],
+      });
+    }
+    game.setDishesDown(dishesDown);
+  }
   static setCustomersWaiting(game) {
     const numCustomers = Native.readline(); // the number of customers currently waiting for food
     let customersWaiting = [];

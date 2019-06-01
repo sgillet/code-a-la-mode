@@ -87,8 +87,26 @@ describe('Main', () => {
         expect(nativeStub.log.stub.getCall(0).args[0]).toBe('USE 10 0');
       });
 
-      it('should put down the plate close to the strawberries after getting the ice cream', () => {
+      it('should put down the plate close to the chopping board after getting the ice cream', () => {
         nativeStub.readline.setupTurnPlateDown();
+        game = Main.init();
+        expect(nativeStub.log.stub.getCall(0).args[0]).toBe('USE 8 4');
+      });
+
+      it('should get the strawberries after putting down the plate', () => {
+        nativeStub.readline.setupTurnStrawberriesAfterPlateDown();
+        game = Main.init();
+        expect(nativeStub.log.stub.getCall(0).args[0]).toBe('USE 10 6');
+      });
+
+      it('should chop the strawberries after getting them', () => {
+        nativeStub.readline.setupTurnChopStrawberriesAfterPlateDown();
+        game = Main.init();
+        expect(nativeStub.log.stub.getCall(0).args[0]).toBe('USE 7 4');
+      });
+
+      it('should pick up the dish after chopping strawberries', () => {
+        nativeStub.readline.setupTurnPickUpDishAfterChoppingStrawberries();
         game = Main.init();
         expect(nativeStub.log.stub.getCall(0).args[0]).toBe('USE 9 6');
       });
@@ -97,6 +115,12 @@ describe('Main', () => {
         nativeStub.readline.setupTurnBlueberries();
         game = Main.init();
         expect(nativeStub.log.stub.getCall(0).args[0]).toBe('USE 2 4');
+      });
+
+      it('should get the dish out the window', () => {
+        nativeStub.readline.setupTurnWindow();
+        game = Main.init();
+        expect(nativeStub.log.stub.getCall(0).args[0]).toBe('USE 5 6');
       });
     });
   });

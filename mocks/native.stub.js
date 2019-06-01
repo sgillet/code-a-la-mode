@@ -33,17 +33,21 @@ class ReadlineStub {
     this.stub.onCall(15).returns('DISH-BLUEBERRIES-ICE_CREAM 650'); // customer waiting (item, award) #1
   }
 
-  setupTurnDishwasher() {
-    this.setupTurnDefault();
-  }
-
-  setupTurnDishwasherDespiteTableWithItem() {
+  setupTurnWithDishOnTableDefault() {
     this.setupTurnDefault();
     this.stub.onCall(12).returns('1'); // table count with items
     this.stub.onCall(13).returns('0 0 DISH-BLUEBERRIES'); // table with items info
     this.stub.onCall(14).returns('NONE 0'); // oven
     this.stub.onCall(15).returns('1'); // customers waiting for food
     this.stub.onCall(16).returns('DISH-BLUEBERRIES-ICE_CREAM 650'); // customer waiting (item, award) #1
+  }
+
+  setupTurnDishwasher() {
+    this.setupTurnDefault();
+  }
+
+  setupTurnDishwasherDespiteTableWithItem() {
+    this.setupTurnWithDishOnTableDefault();
   }
 
   setupTurnFirstIngredient() {
@@ -79,6 +83,32 @@ class ReadlineStub {
   setupTurnPlateDown() {
     this.setupTurnDefault();
     this.stub.onCall(10).returns('2 1 DISH-ICE_CREAM'); // player status
+    this.stub.onCall(15).returns('DISH-ICE_CREAM-CHOPPED_STRAWBERRIES-BLUEBERRIES 650'); // customer waiting (item, award) #1
+  }
+
+  setupTurnStrawberriesAfterPlateDown() {
+    this.setupTurnWithDishOnTableDefault();
+    this.stub.onCall(13).returns('9 6 DISH-ICE_CREAM'); // table with items info
+    this.stub.onCall(16).returns('DISH-ICE_CREAM-CHOPPED_STRAWBERRIES-BLUEBERRIES 650'); // customer waiting (item, award) #1
+  }
+
+  setupTurnChopStrawberriesAfterPlateDown() {
+    this.setupTurnWithDishOnTableDefault();
+    this.stub.onCall(10).returns('2 1 STRAWBERRIES'); // player status
+    this.stub.onCall(13).returns('9 6 DISH-ICE_CREAM'); // table with items info
+    this.stub.onCall(16).returns('DISH-ICE_CREAM-CHOPPED_STRAWBERRIES-BLUEBERRIES 650'); // customer waiting (item, award) #1
+  }
+
+  setupTurnPickUpDishAfterChoppingStrawberries() {
+    this.setupTurnWithDishOnTableDefault();
+    this.stub.onCall(10).returns('2 1 CHOPPED_STRAWBERRIES'); // player status
+    this.stub.onCall(13).returns('9 6 DISH-ICE_CREAM'); // table with items info
+    this.stub.onCall(16).returns('DISH-ICE_CREAM-CHOPPED_STRAWBERRIES-BLUEBERRIES 650'); // customer waiting (item, award) #1
+  }
+
+  setupTurnWindow() {
+    this.setupTurnDefault();
+    this.stub.onCall(10).returns('2 1 DISH-ICE_CREAM-CHOPPED_STRAWBERRIES-BLUEBERRIES'); // player status
     this.stub.onCall(15).returns('DISH-ICE_CREAM-CHOPPED_STRAWBERRIES-BLUEBERRIES 650'); // customer waiting (item, award) #1
   }
 }

@@ -114,6 +114,7 @@ class Kitchen {
     this.strawberries.position = this.strawberries.searchPosition(this.lines);
     this.window.position = this.window.searchPosition(this.lines);
     this.availablePositions = this.setAvailablePositions();
+    this.dishesDown = [];
   }
   closestAvailablePositionTo(element) {
     const closestPosition = this.availablePositions.reduce((closestPositionSoFar, currentPosition) => {
@@ -135,7 +136,29 @@ class Kitchen {
     });
     return availablePositions;
   }
-
+  setDishesDown(dishesDown) {
+    this.dishesDown = [];
+    dishesDown.forEach((dish) => {
+      this.dishesDown.push(new Dish(dish));
+    });
+  }
+  getDishPositionForRecipe(dishFullName) {
+    let dishPosition = this.dishwasher.position;
+    const regexp = new RegExp('-CHOPPED_STRAWBERRIES.*');
+    const dishPrefix = dishFullName.replace(regexp, '');
+    this.dishesDown.forEach((dish) => {
+      if(dish.recipe.name) {
+        dishPosition = dish.position;
+      }
+    });
+    return dishPosition;
+  }
+}
+class Dish {
+    constructor({positionX, positionY, recipeName}) {
+      this.position = new Position(positionX, positionY);
+      this.recipe = new Recipe(recipeName)
+    }
 }
 
 class Recipe {
@@ -143,21 +166,35 @@ class Recipe {
     this.name = name;
     this.needPlateDown = false;
   }
-  setNextIngredient(currentItems) {
-    const baseItems = currentItems === 'NONE' ? 'DISH' : currentItems;
+  setNextIngredient(currentItems, dishesDown) {
+    const compatibleDishName = this.getAvailableDishName(dishesDown);
+    const baseItems = currentItems === 'NONE' ? compatibleDishName : currentItems;
     const regexp = new RegExp(`^${baseItems}-`);
     this.nextIngredient = this.name.replace(regexp, '').split('-')[0];
   }
+  getAvailableDishName(dishes) {
+    let availableDishName = 'DISH';
+    dishes.forEach((dish) => {
+      const dishRegexp = new RegExp(`^${dish.recipe.name}`);
+      if(dishRegexp.test(this.name)) {
+        availableDishName = dish.recipe.name;
+      }
+    });
+    return availableDishName;
+  }
 
-  getNextStep(currentItems) {
-    this.setNextIngredient(currentItems);
+  getNextStep(currentItems, dishesDown) {
+    this.setNextIngredient(currentItems, dishesDown);
     if(currentItems === this.name) {
       return 'WINDOW';
     }
-    if(this.nextIngredient === 'CHOPPED_STRAWBERRIES' && currentItems !== 'NONE') {
-      return 'PLATE_DOWN';
+    if(currentItems === 'CHOPPED_STRAWBERRIES') {
+      return 'DISH_UP';
     }
-    if(this.needStrawberries(currentItems)) {
+    if(this.nextIngredient === 'CHOPPED_STRAWBERRIES' && currentItems !== 'NONE') {
+      return 'DISH_DOWN';
+    }
+    if(this.needStrawberries(currentItems, dishesDown)) {
       return 'STRAWBERRIES';
     }
     if(this.needChopping(currentItems)) {
@@ -190,7 +227,7 @@ class Recipe {
 class Orchestrator {
   static getNextMove(kitchen, customers) {
     const currentRecipe = new Recipe(customers[0].wish);
-    const nextStep = currentRecipe.getNextStep(kitchen.player.items);
+    const nextStep = currentRecipe.getNextStep(kitchen.player.items, kitchen.dishesDown);
     switch(nextStep) {
       case 'DISH':
         return `USE ${kitchen.dishwasher.position.x} ${kitchen.dishwasher.position.y}`;
@@ -200,9 +237,12 @@ class Orchestrator {
         return `USE ${kitchen.choppingBoard.position.x} ${kitchen.choppingBoard.position.y}`;
       case 'ICE_CREAM':
         return `USE ${kitchen.iceCream.position.x} ${kitchen.iceCream.position.y}`;
-      case 'PLATE_DOWN':
-        const closestAvailablePositionToStrawberries = kitchen.closestAvailablePositionTo(kitchen.strawberries.position);
-        return `USE ${closestAvailablePositionToStrawberries.x} ${closestAvailablePositionToStrawberries.y}`;
+      case 'DISH_DOWN':
+        const closestAvailablePositionToChoppingBoard = kitchen.closestAvailablePositionTo(kitchen.choppingBoard.position);
+        return `USE ${closestAvailablePositionToChoppingBoard.x} ${closestAvailablePositionToChoppingBoard.y}`;
+      case 'DISH_UP':
+        const dishPosition = kitchen.getDishPositionForRecipe(currentRecipe.name);
+        return `USE ${dishPosition.x} ${dishPosition.y}`;
       case 'STRAWBERRIES':
         return `USE ${kitchen.strawberries.position.x} ${kitchen.strawberries.position.y}`;
       case 'WINDOW':
@@ -267,6 +307,9 @@ class Game {
   }
   setCustomersWaiting(customersWaiting) {
     this.customers.setWaiting(customersWaiting);
+  }
+  setDishesDown(dishesDown) {
+    this.kitchen.setDishesDown(dishesDown);
   }
 }
 
