@@ -144,11 +144,10 @@ class Kitchen {
   }
   getDishPositionForRecipe(dishFullName) {
     let dishPosition = this.dishwasher.position;
-    const regexp = new RegExp('-CHOPPED_STRAWBERRIES.*');
-    const dishPrefix = dishFullName.replace(regexp, '');
-    this.dishesDown.forEach((dish) => {
-      if(dish.recipe.name) {
-        dishPosition = dish.position;
+    this.dishesDown.forEach((dishDown) => {
+      const dishDownRegexp = new RegExp(`^${dishDown.recipe.name}.*`);
+      if(dishDownRegexp.test(dishFullName)) {
+        dishPosition = dishDown.position;
       }
     });
     return dishPosition;
@@ -188,7 +187,7 @@ class Recipe {
     if(currentItems === this.name) {
       return 'WINDOW';
     }
-    if(currentItems === 'CHOPPED_STRAWBERRIES') {
+    if(this.shouldPickUpPlate(currentItems)) {
       return 'DISH_UP';
     }
     if(this.nextIngredient === 'CHOPPED_STRAWBERRIES' && currentItems !== 'NONE') {
@@ -207,8 +206,17 @@ class Recipe {
     const remainingRecipe = this.name.replace(regexp, '');
     return remainingRecipe.split('-')[0];
   }
+  shouldPickUpPlate(currentItems) {
+    if(['NONE', 'CHOPPED_STRAWBERRIES'].includes(currentItems)) {
+      if(this.nextIngredient === 'CHOPPED_STRAWBERRIES') {
+        return false;
+      }
+      return true;
+    }
+    return false;
+  }
   needStrawberries(currentItems) {
-    if(currentItems.includes('STRAWBERRIES')) {
+    if(currentItems !== 'NONE') {
       return false;
     }
     if(this.nextIngredient === 'CHOPPED_STRAWBERRIES') {
@@ -226,7 +234,7 @@ class Recipe {
 
 class Orchestrator {
   static getNextMove(kitchen, customers) {
-    const currentRecipe = new Recipe(customers[0].wish);
+    const currentRecipe = new Recipe(Orchestrator.getMostExpensiveRecipeName(customers));
     const nextStep = currentRecipe.getNextStep(kitchen.player.items, kitchen.dishesDown);
     switch(nextStep) {
       case 'DISH':
@@ -250,6 +258,15 @@ class Orchestrator {
       default:
         return 'WAIT';
     }
+  }
+  static getMostExpensiveRecipeName(customers) {
+    const customerWithHighestAward = customers.reduce((customerWithHighestAwardSoFar, currentCustomer) => {
+      if(currentCustomer.award > customerWithHighestAwardSoFar.award) {
+        return currentCustomer;
+      }
+      return customerWithHighestAwardSoFar;
+    });
+    return customerWithHighestAward.wish;
   }
 }
 

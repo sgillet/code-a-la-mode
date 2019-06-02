@@ -11,7 +11,6 @@ describe('Main', () => {
     describe('when asked for DISH-BLUEBERRIES-ICE_CREAM', () => {
       beforeEach(() => {
         nativeStub = new NativeStub();
-        nativeStub.readline.setupKitchen();
       });
 
       afterEach(() => {
@@ -34,7 +33,6 @@ describe('Main', () => {
     describe('when asked for DISH-ICE_CREAM-BLUEBERRIES', () => {
       beforeEach(() => {
         nativeStub = new NativeStub();
-        nativeStub.readline.setupKitchen('DISH-ICE_CREAM-BLUEBERRIES 650');
       });
 
       afterEach(() => {
@@ -51,7 +49,6 @@ describe('Main', () => {
     describe('when asked for DISH-CHOPPED_STRAWBERRIES-BLUEBERRIES-ICE_CREAM', () => {
       beforeEach(() => {
         nativeStub = new NativeStub();
-        nativeStub.readline.setupKitchen('DISH-CHOPPED_STRAWBERRIES-BLUEBERRIES-ICE_CREAM 650');
       });
 
       afterEach(() => {
@@ -74,7 +71,6 @@ describe('Main', () => {
     describe('when asked for DISH-ICE_CREAM-CHOPPED_STRAWBERRIES-BLUEBERRIES', () => {
       beforeEach(() => {
         nativeStub = new NativeStub();
-        nativeStub.readline.setupKitchen('DISH-ICE_CREAM-CHOPPED_STRAWBERRIES-BLUEBERRIES 650');
       });
 
       afterEach(() => {
@@ -121,6 +117,38 @@ describe('Main', () => {
         nativeStub.readline.setupTurnWindow();
         game = Main.init();
         expect(nativeStub.log.stub.getCall(0).args[0]).toBe('USE 5 6');
+      });
+    });
+
+    describe('when asked for DISH-BLUEBERRIES-CHOPPED_STRAWBERRIES_ICE_CREAM', () => {
+      beforeEach(() => {
+        nativeStub = new NativeStub();
+      });
+
+      afterEach(() => {
+        nativeStub.restore();
+      });
+
+      it('should pick up the dish with blueberries and chopped strawberries', () => {
+        nativeStub.readline.setupTurnPickUpDishWithBlueberriesChoppedStrawberries();
+        game = Main.init();
+        expect(nativeStub.log.stub.getCall(0).args[0]).toBe('USE 9 6');
+      });
+    });
+
+    describe('when DISH-ICE_CREAM-BLUEBERRIES is the most expensive dish', () => {
+      beforeEach(() => {
+        nativeStub = new NativeStub();
+      });
+
+      afterEach(() => {
+        nativeStub.restore();
+      });
+
+      it('should get the ice cream when holding a dish', () => {
+        nativeStub.readline.setupTurnIceCreamNextIngredientOfMostExpensiveDish();
+        game = Main.init();
+        expect(nativeStub.log.stub.getCall(0).args[0]).toBe('USE 10 0');
       });
     });
   });

@@ -4,15 +4,16 @@ const { Native } = require('../src/main');
 class ReadlineStub {
   constructor() {
     this.stub = sinon.stub(Native, 'readline');
+    this.setupKitchen();
   }
 
   restore() {
     Native.readline.restore();
   }
 
-  setupKitchen(firstCustomerInput='DISH-BLUEBERRIES-ICE_CREAM 650') {
+  setupKitchen() {
     this.stub.onCall(0).returns('1'); // customer count
-    this.stub.onCall(1).returns(firstCustomerInput); // customer wish / award
+    this.stub.onCall(1).returns('DISH-BLUEBERRIES-ICE_CREAM 650'); // customer wish / award
     // kitchen lines
     this.stub.onCall(2).returns('#####D####I');
     this.stub.onCall(3).returns('#.........#');
@@ -36,7 +37,7 @@ class ReadlineStub {
   setupTurnWithDishOnTableDefault() {
     this.setupTurnDefault();
     this.stub.onCall(12).returns('1'); // table count with items
-    this.stub.onCall(13).returns('0 0 DISH-BLUEBERRIES'); // table with items info
+    this.stub.onCall(13).returns('0 0 DISH-ICE_CREAM'); // table with items info
     this.stub.onCall(14).returns('NONE 0'); // oven
     this.stub.onCall(15).returns('1'); // customers waiting for food
     this.stub.onCall(16).returns('DISH-BLUEBERRIES-ICE_CREAM 650'); // customer waiting (item, award) #1
@@ -110,6 +111,23 @@ class ReadlineStub {
     this.setupTurnDefault();
     this.stub.onCall(10).returns('2 1 DISH-ICE_CREAM-CHOPPED_STRAWBERRIES-BLUEBERRIES'); // player status
     this.stub.onCall(15).returns('DISH-ICE_CREAM-CHOPPED_STRAWBERRIES-BLUEBERRIES 650'); // customer waiting (item, award) #1
+  }
+
+  setupTurnIceCreamNextIngredientOfMostExpensiveDish() {
+    this.setupTurnDefault();
+    this.stub.onCall(10).returns('2 1 DISH'); // player status
+    this.stub.onCall(14).returns('2'); // customers waiting for food
+    this.stub.onCall(15).returns('DISH-BLUEBERRIES-ICE_CREAM 650'); // customer waiting (item, award) #1
+    this.stub.onCall(16).returns('DISH-ICE_CREAM-BLUEBERRIES 1000'); // customer waiting (item, award) #1
+  }
+
+  setupTurnPickUpDishWithBlueberriesChoppedStrawberries() {
+    this.setupTurnWithDishOnTableDefault();
+    this.stub.onCall(10).returns('2 1 NONE'); // player status
+    this.stub.onCall(13).returns('9 6 DISH-BLUEBERRIES-CHOPPED_STRAWBERRIES'); // table with items info
+    this.stub.onCall(15).returns('2'); // customers waiting for food
+    this.stub.onCall(16).returns('DISH-BLUEBERRIES-CHOPPED_STRAWBERRIES_ICE_CREAM 1000'); // customer waiting (item, award) #1
+    this.stub.onCall(17).returns('DISH-CHOPPED_STRAWBERRIES-ICE_CREAM 600'); // customer waiting (item, award) #1
   }
 }
 
