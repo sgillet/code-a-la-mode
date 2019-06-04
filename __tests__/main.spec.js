@@ -151,5 +151,60 @@ describe('Main', () => {
         expect(nativeStub.log.stub.getCall(0).args[0]).toBe('USE 10 0');
       });
     });
+
+    describe('when asked for DISH-CROISSANT', () => {
+      beforeEach(() => {
+        nativeStub = new NativeStub();
+      });
+
+      afterEach(() => {
+        nativeStub.restore();
+      });
+
+      it('should get the dough when a dish is laid on a table', () => {
+        nativeStub.readline.setupTurnDoughWhenDishOnTable();
+        game = Main.init();
+        expect(nativeStub.log.stub.getCall(0).args[0]).toBe('USE 0 6');
+      });
+
+      it('should put to oven when holding the dough', () => {
+        nativeStub.readline.setupTurnOven();
+        game = Main.init();
+        expect(nativeStub.log.stub.getCall(0).args[0]).toBe('USE 0 4');
+      });
+
+      it('should pick up plate while the dough is in the oven', () => {
+        nativeStub.readline.setupPickUpPlateWhileDoughInOven();
+        game = Main.init();
+        expect(nativeStub.log.stub.getCall(0).args[0]).toBe('USE 0 5');
+      });
+
+      it('should move in front of the oven when waiting for croissant to finish cooking', () => {
+        nativeStub.readline.setupMoveCloseToOvenWhenWaitingForCroissant();
+        game = Main.init();
+        expect(nativeStub.log.stub.getCall(0).args[0]).toBe('MOVE 1 4');
+      });
+
+      it('should put to oven when holding the dough', () => {
+        nativeStub.readline.setupTurnPickUpCroissant();
+        game = Main.init();
+        expect(nativeStub.log.stub.getCall(0).args[0]).toBe('USE 0 4');
+      });
+    });
+
+    describe('when asked for DISH-CROISSANT', () => {
+      beforeEach(() => {
+        nativeStub = new NativeStub();
+      });
+
+      afterEach(() => {
+        nativeStub.restore();
+      });
+      it('should put down the dish with blueberries before taking the dough', () => {
+        nativeStub.readline.setupTurnDishWithBlueberriesDownBeforeTakingDough();
+        game = Main.init();
+        expect(nativeStub.log.stub.getCall(0).args[0]).toBe('USE 0 5');
+      });
+    });
   });
 });

@@ -34,10 +34,14 @@ class Chef extends Element {
     super();
     this.items = '';
     this.symbol = symbol;
+    this.oven = new Oven();
   }
   updateState(newState) {
     this.position.update(newState[0], newState[1]);
     this.items = newState[2];
+  }
+  setupTimerForCroissant() {
+    this.oven.setupTimerForCroissant();
   }
 }
 
@@ -58,6 +62,13 @@ class Dishwasher extends Item {
   constructor() {
     super();
     this.symbol = 'D';
+  }
+}
+
+class Dough extends Item {
+  constructor() {
+    super();
+    this.symbol = 'H';
   }
 }
 
@@ -82,10 +93,26 @@ class Strawberries extends Item {
     }
 }
 
-class ChoppingBoard extends Item {
+class Appliance extends Item {
+}
+
+class ChoppingBoard extends Appliance {
     constructor() {
       super();
       this.symbol = 'C';
+    }
+}
+
+class Oven extends Appliance {
+    constructor() {
+      super();
+      this.item = 'NONE';
+      this.symbol = 'O';
+      this.timer = 0;
+    }
+    updateState({item, timer}) {
+      this.item = item;
+      this.timer = timer;
     }
 }
 
@@ -93,9 +120,11 @@ class Kitchen {
   constructor () {
     this.choppingBoard = new ChoppingBoard();
     this.blueberry = new Blueberry();
+    this.dough = new Dough();
     this.dishwasher = new Dishwasher();
     this.iceCream = new IceCream();
     this.lines = [];
+    this.oven = new Oven();
     this.partner = new Chef(1);
     this.player = new Chef(0);
     this.strawberries = new Strawberries();
@@ -108,33 +137,36 @@ class Kitchen {
     this.blueberry.position = this.blueberry.searchPosition(this.lines);
     this.choppingBoard.position = this.choppingBoard.searchPosition(this.lines);
     this.dishwasher.position = this.dishwasher.searchPosition(this.lines);
+    this.dough.position = this.dough.searchPosition(this.lines);
     this.iceCream.position = this.iceCream.searchPosition(this.lines);
+    this.oven.position = this.oven.searchPosition(this.lines);
     this.player.position = this.player.searchPosition(this.lines);
     this.partner.position = this.partner.searchPosition(this.lines);
     this.strawberries.position = this.strawberries.searchPosition(this.lines);
     this.window.position = this.window.searchPosition(this.lines);
-    this.availablePositions = this.setAvailablePositions();
+    this.availableTables = this.setAvailableSpotsForSymbol('#');
+    this.availableFloorCells = this.setAvailableSpotsForSymbol('.');
     this.dishesDown = [];
   }
-  closestAvailablePositionTo(element) {
-    const closestPosition = this.availablePositions.reduce((closestPositionSoFar, currentPosition) => {
-      if(element.distanceTo(currentPosition) <= element.distanceTo(closestPositionSoFar)) {
+  closestElementToPosition(elements, position) {
+    const closestPosition = elements.reduce((closestPositionSoFar, currentPosition) => {
+      if(position.distanceTo(currentPosition) <= position.distanceTo(closestPositionSoFar)) {
         return currentPosition;
       }
       return closestPositionSoFar;
     });
     return closestPosition;
   }
-  setAvailablePositions() {
-    let availablePositions = [];
+  setAvailableSpotsForSymbol(symbol) {
+    let availableSpots = [];
     this.lines.forEach((line, positionY) => {
         [...line].forEach((character, positionX) => {
-          if(character === '#') {
-            availablePositions.push(new Position(positionX, positionY));
+          if(character === symbol) {
+            availableSpots.push(new Position(positionX, positionY));
           }
         });
     });
-    return availablePositions;
+    return availableSpots;
   }
   setDishesDown(dishesDown) {
     this.dishesDown = [];
@@ -159,7 +191,11 @@ class Dish {
       this.recipe = new Recipe(recipeName)
     }
 }
-
+class RecipeStep {
+  constructor(name) {
+    this.name = name;
+  }
+}
 class Recipe {
   constructor(name) {
     this.name = name;
@@ -182,32 +218,57 @@ class Recipe {
     return availableDishName;
   }
 
-  getNextStep(currentItems, dishesDown) {
-    this.setNextIngredient(currentItems, dishesDown);
-    if(currentItems === this.name) {
-      return 'WINDOW';
+  getNextStep(currentItemsNameInHand, dishesDown, oven) {
+    this.setNextIngredient(currentItemsNameInHand, dishesDown);
+    if(currentItemsNameInHand === this.name) {
+      return new RecipeStep('WINDOW');
     }
-    if(this.shouldPickUpPlate(currentItems)) {
-      return 'DISH_UP';
+    if(this.shouldPickUpCroissant(oven)) {
+      return new RecipeStep('OVEN');
     }
-    if(this.nextIngredient === 'CHOPPED_STRAWBERRIES' && currentItems !== 'NONE') {
-      return 'DISH_DOWN';
+    if(this.shouldMoveCloseToOven(currentItemsNameInHand, oven)) {
+      return new RecipeStep('MOVE_OVEN');
     }
-    if(this.needStrawberries(currentItems, dishesDown)) {
-      return 'STRAWBERRIES';
+    if(this.needDough(currentItemsNameInHand, oven)) {
+      return new RecipeStep('DOUGH');
     }
-    if(this.needChopping(currentItems)) {
-      return 'CHOPPED_STRAWBERRIES';
+    if(this.shouldBake(currentItemsNameInHand)) {
+      return new RecipeStep('OVEN');
+    }
+    if(this.shouldPickUpPlate(currentItemsNameInHand)) {
+      return new RecipeStep('DISH_UP');
+    }
+    if(this.nextIngredient === 'CHOPPED_STRAWBERRIES' && currentItemsNameInHand !== 'NONE') {
+      return new RecipeStep('DISH_DOWN');
+    }
+    if(this.needStrawberries(currentItemsNameInHand, dishesDown)) {
+      return new RecipeStep('STRAWBERRIES');
+    }
+    if(this.needChopping(currentItemsNameInHand)) {
+      return new RecipeStep('CHOPPED_STRAWBERRIES');
     }
     if(this.name === 'NONE') {
-      return 'DISH';
+      return new RecipeStep('DISH');
     }
-    const regexp = new RegExp(`^${currentItems}-?`)
+    const regexp = new RegExp(`^${currentItemsNameInHand}-?`)
     const remainingRecipe = this.name.replace(regexp, '');
-    return remainingRecipe.split('-')[0];
+    const recipeStepName = remainingRecipe.split('-')[0];
+    return new RecipeStep(recipeStepName);
   }
-  shouldPickUpPlate(currentItems) {
-    if(['NONE', 'CHOPPED_STRAWBERRIES'].includes(currentItems)) {
+  shouldPickUpCroissant(oven) {
+    if(oven.item === 'CROISSANT') {
+      return true
+    }
+    return false
+  }
+  shouldBake(currentItemsNameInHand) {
+    if(currentItemsNameInHand === 'DOUGH') {
+      return true;
+    }
+    return false;
+  }
+  shouldPickUpPlate(currentItemsNameInHand) {
+    if(['NONE', 'CHOPPED_STRAWBERRIES'].includes(currentItemsNameInHand)) {
       if(this.nextIngredient === 'CHOPPED_STRAWBERRIES') {
         return false;
       }
@@ -215,8 +276,26 @@ class Recipe {
     }
     return false;
   }
-  needStrawberries(currentItems) {
-    if(currentItems !== 'NONE') {
+  shouldMoveCloseToOven(currentItemsNameInHand, oven) {
+    if(currentItemsNameInHand !== 'NONE' && oven.item === 'DOUGH') {
+      return true;
+    }
+    return false;
+  }
+  needDough(currentItemsNameInHand, oven) {
+    if(currentItemsNameInHand !== 'NONE') {
+      return false;
+    }
+    if(this.nextIngredient !== 'CROISSANT') {
+      return false;
+    }
+    if(oven.item !== 'NONE') {
+      return false
+    }
+    return true;
+  }
+  needStrawberries(currentItemsNameInHand) {
+    if(currentItemsNameInHand !== 'NONE') {
       return false;
     }
     if(this.nextIngredient === 'CHOPPED_STRAWBERRIES') {
@@ -224,8 +303,8 @@ class Recipe {
     }
     return false;
   }
-  needChopping(currentItems) {
-    if(currentItems === 'STRAWBERRIES') {
+  needChopping(currentItemsNameInHand) {
+    if(currentItemsNameInHand === 'STRAWBERRIES') {
       return true;
     }
     return false;
@@ -235,22 +314,32 @@ class Recipe {
 class Orchestrator {
   static getNextMove(kitchen, customers) {
     const currentRecipe = new Recipe(Orchestrator.getMostExpensiveRecipeName(customers));
-    const nextStep = currentRecipe.getNextStep(kitchen.player.items, kitchen.dishesDown);
-    switch(nextStep) {
-      case 'DISH':
-        return `USE ${kitchen.dishwasher.position.x} ${kitchen.dishwasher.position.y}`;
+    const nextStep = currentRecipe.getNextStep(kitchen.player.items, kitchen.dishesDown, kitchen.oven);
+    switch(nextStep.name) {
       case 'BLUEBERRIES':
         return `USE ${kitchen.blueberry.position.x} ${kitchen.blueberry.position.y}`;
+      case 'CROISSANT':
+        const closestFreeTableToOven = kitchen.closestElementToPosition(kitchen.availableTables, kitchen.oven.position);
+        return `USE ${closestFreeTableToOven.x} ${closestFreeTableToOven.y}`;
       case 'CHOPPED_STRAWBERRIES':
         return `USE ${kitchen.choppingBoard.position.x} ${kitchen.choppingBoard.position.y}`;
-      case 'ICE_CREAM':
-        return `USE ${kitchen.iceCream.position.x} ${kitchen.iceCream.position.y}`;
+      case 'DISH':
+        return `USE ${kitchen.dishwasher.position.x} ${kitchen.dishwasher.position.y}`;
       case 'DISH_DOWN':
-        const closestAvailablePositionToChoppingBoard = kitchen.closestAvailablePositionTo(kitchen.choppingBoard.position);
-        return `USE ${closestAvailablePositionToChoppingBoard.x} ${closestAvailablePositionToChoppingBoard.y}`;
+        const closestFreeTableToChoppingBoard = kitchen.closestElementToPosition(kitchen.availableTables, kitchen.choppingBoard.position);
+        return `USE ${closestFreeTableToChoppingBoard.x} ${closestFreeTableToChoppingBoard.y}`;
       case 'DISH_UP':
         const dishPosition = kitchen.getDishPositionForRecipe(currentRecipe.name);
         return `USE ${dishPosition.x} ${dishPosition.y}`;
+      case 'DOUGH':
+        return `USE ${kitchen.dough.position.x} ${kitchen.dough.position.y}`;
+      case 'ICE_CREAM':
+        return `USE ${kitchen.iceCream.position.x} ${kitchen.iceCream.position.y}`;
+      case 'MOVE_OVEN':
+        const closestFreeSpotToOven = kitchen.closestElementToPosition(kitchen.availableFloorCells, kitchen.oven.position);
+        return `MOVE ${closestFreeSpotToOven.x} ${closestFreeSpotToOven.y}`;
+      case 'OVEN':
+        return `USE ${kitchen.oven.position.x} ${kitchen.oven.position.y}`;
       case 'STRAWBERRIES':
         return `USE ${kitchen.strawberries.position.x} ${kitchen.strawberries.position.y}`;
       case 'WINDOW':
@@ -315,6 +404,9 @@ class Game {
   }
   getNextMove() {
     return Orchestrator.getNextMove(this.kitchen, this.customers.waiting);
+  }
+  updateOvenState(state) {
+    this.kitchen.oven.updateState(state);
   }
   updatePlayerState(state) {
     this.kitchen.player.updateState(state);

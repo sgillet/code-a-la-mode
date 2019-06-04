@@ -1,0 +1,8 @@
+- pick up chopped strawberries in table if completing dish
+- go to WINDOW
+- take a look at partner
+- always pick up best plate
+- make recipe a RecipeStep
+- make RecipeStep require Ingredient
+- set up appliances, ingredients
+- handle oven timer (timer & burn timer)

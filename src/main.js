@@ -28,7 +28,11 @@ class Main {
       game.updatePlayerState(Native.readline().split(' '));
       game.updatePartnerState(Native.readline().split(' '));
       Main.setDishesDown(game);
-      Native.readline(); //oven timer
+      const ovenState = Native.readline().split(' ');
+      game.updateOvenState({
+        item: ovenState[0],
+        timer: parseInt(ovenState[1]),
+      }); //oven timer
       Main.setCustomersWaiting(game);
       Native.log(game.getNextMove());
     }

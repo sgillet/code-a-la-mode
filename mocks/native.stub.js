@@ -19,9 +19,9 @@ class ReadlineStub {
     this.stub.onCall(3).returns('#.........#');
     this.stub.onCall(4).returns('#.####.##.#');
     this.stub.onCall(5).returns('#.#..#1.#.#');
-    this.stub.onCall(6).returns('#.B#0##C#.#');
+    this.stub.onCall(6).returns('O.B#0##C#.#');
     this.stub.onCall(7).returns('#.........#');
-    this.stub.onCall(8).returns('#####W####S');
+    this.stub.onCall(8).returns('H####W####S');
   }
 
   setupTurnDefault() {
@@ -128,6 +128,53 @@ class ReadlineStub {
     this.stub.onCall(15).returns('2'); // customers waiting for food
     this.stub.onCall(16).returns('DISH-BLUEBERRIES-CHOPPED_STRAWBERRIES_ICE_CREAM 1000'); // customer waiting (item, award) #1
     this.stub.onCall(17).returns('DISH-CHOPPED_STRAWBERRIES-ICE_CREAM 600'); // customer waiting (item, award) #1
+  }
+
+  setupTurnDishDown() {
+    this.setupTurnDefault();
+    this.stub.onCall(10).returns('2 1 DISH'); // player status
+    this.stub.onCall(15).returns('DISH-CROISSANT 1000'); // customers waiting for food
+  }
+
+  setupTurnDoughWhenDishOnTable() {
+    this.setupTurnWithDishOnTableDefault();
+    this.stub.onCall(10).returns('2 1 NONE'); // player status
+    this.stub.onCall(13).returns('0 5 DISH'); // table with items info
+    this.stub.onCall(16).returns('DISH-CROISSANT 1000'); // customers waiting for food
+  }
+
+  setupTurnOven() {
+    this.setupTurnDefault();
+    this.stub.onCall(10).returns('2 1 DOUGH'); // player status
+    this.stub.onCall(15).returns('DISH-CROISSANT 1000'); // customers waiting for food
+  }
+
+  setupMoveCloseToOvenWhenWaitingForCroissant() {
+    this.setupTurnDefault();
+    this.stub.onCall(10).returns('2 1 DISH'); // player status
+    this.stub.onCall(13).returns('DOUGH 9'); // oven timer
+    this.stub.onCall(15).returns('DISH-CROISSANT 1000'); // customers waiting for food
+  }
+
+  setupTurnPickUpCroissant() {
+    this.setupTurnDefault();
+    this.stub.onCall(10).returns('2 1 DISH'); // player status
+    this.stub.onCall(13).returns('CROISSANT 9'); // oven timer
+    this.stub.onCall(15).returns('DISH-CROISSANT 1000'); // customers waiting for food
+  }
+
+  setupPickUpPlateWhileDoughInOven() {
+    this.setupTurnWithDishOnTableDefault();
+    this.stub.onCall(10).returns('2 1 NONE'); // player status
+    this.stub.onCall(13).returns('0 5 DISH'); // table with items info
+    this.stub.onCall(14).returns('DOUGH 9'); // oven timer
+    this.stub.onCall(16).returns('DISH-CROISSANT 1000'); // customers waiting for food
+  }
+
+  setupTurnDishWithBlueberriesDownBeforeTakingDough() {
+    this.setupTurnDefault();
+    this.stub.onCall(10).returns('2 1 DISH-BLUEBERRIES'); // player status
+    this.stub.onCall(15).returns('DISH-BLUEBERRIES-CROISSANT 1000'); // customers waiting for food
   }
 }
 
